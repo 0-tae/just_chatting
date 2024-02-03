@@ -10,6 +10,6 @@ assignees: 0-tae
 ## (feature: DOMAIN)
 
 ### checklists
-- [] implemented_1
-- [] implemented_2
-- [] implemented_3
+- [ ] implemented_1
+- [ ] implemented_2
+- [ ] implemented_3
