@@ -22,7 +22,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private AtomicLong id; // Long 인스턴스 생성의 동기화
+    private Long id; // Long 인스턴스 생성의 동기화
 
     @Column(nullable = false)
     private String userId;
@@ -45,4 +45,8 @@ public class User {
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime deletedAt;
+
+    public void setUsername(String newUserName){
+        this.username = newUserName;
+    }
 }

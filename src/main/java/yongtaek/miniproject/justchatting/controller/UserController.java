@@ -3,18 +3,14 @@ package yongtaek.miniproject.justchatting.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Fetch;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import yongtaek.miniproject.justchatting.domain.User;
-import yongtaek.miniproject.justchatting.model.CreateUserRequestDto;
-import yongtaek.miniproject.justchatting.model.CreateUserResponseDto;
-import yongtaek.miniproject.justchatting.model.ReadUserRequestDto;
-import yongtaek.miniproject.justchatting.model.ReadUserResponseDto;
+import yongtaek.miniproject.justchatting.model.*;
 import yongtaek.miniproject.justchatting.service.UserService;
 
 @RestController
-@RequestMapping("/api/v1/chat")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -22,9 +18,14 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto){
+        /*
+        *
+        * User Create
+        *
+        * */
         User createdUser = userService.saveUser(requestDto);
 
-        // TODO: ResponseAdvice¸¦ ÅëÇØ¼­ Response¿¡ ok field¸¦ Ãß°¡ÇÏ±â
+        // TODO: implement ResponseAdvice for ResponseObject to add ok field
         return ResponseEntity.ok(CreateUserResponseDto.builder().userId(createdUser.getUserId())
                 .username(createdUser.getUsername())
                 .build());
@@ -33,9 +34,14 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ReadUserResponseDto> readUserForLogin
             (@RequestBody ReadUserRequestDto requestDto, HttpSession session){
+        /*
+         *
+         * User Login
+         *
+         * */
         User user =  userService.findUser(requestDto);
 
-        // À¯Àú ¼¼¼Ç »ý¼º
+        // ???? ???? ????
         session.setAttribute("userId", user.getUserId());
         session.setMaxInactiveInterval(60 * 60);
 
@@ -44,23 +50,48 @@ public class UserController {
                 .build());
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity deleteUser(@PathVariable String userId){
+        /*
+         *
+         * User delete
+         *
+         * */
+        User user = userService.removeUser(userId);
+        return ResponseEntity.ok(DeleteUserResponseDto.builder().userId(userId).build());
+    }
+
+    @PutMapping
+    public ResponseEntity updateUsername(@RequestBody UpdateUsernameRequestDto dto){
+        /*
+         *
+         * Update username
+         *
+         * */
+        User user = userService.updateUsername(dto);
+        return ResponseEntity.ok(UpdateUsernameResponseDto.builder()
+                .userId(dto.getUserId())
+                .previousUsername(dto.getUsername())
+                .newUsername(user.getUsername()).build());
+    }
+
     /*
         TODO:
-         ¼¼¼Ç ¸¸·á ¸î ÃÊÀü¿¡ ½ÇÇà µÇ¾î¾ß ÇÒ ÇÔ¼öÀÎµ¥, ½ºÄÉÁÙ¸µÀ» ÇØ¾ßÇÒ±î?
-         ÀÏ´Ü JWT¿Í ¼¼¼Ç »çÀÌ¿¡¼­ °í¹Î Á» ÇØº¸±â,
-         JWT·Î Header¿¡¼­ ruleÀ» È®ÀÎÇÒ ¼ö ÀÖ´Ù¸é. ÀÎÅÍ¼ÁÅÍ¿¡¼­ À¯Àúº° Á¢±Ù °¡´É ¿©ºÎ¸¦ ±¸ÇöÇÒ ¼ö ÀÖ´Ù.
+         Session? JWT? ê³ ë ¤í•´ë³´ê¸°
     */
     @PatchMapping("/refresh/{userId}")
     public ResponseEntity sessionRefresh(HttpSession session, @PathVariable String userId){
-        // isNew() -> ValidIntervalÀÎÁö È®ÀÎÇÏ´Â ÇÔ¼ö
-        // ¼¼¼ÇÀ» ¸¸·á½ÃÅ°°í, ´Ù½Ã »ý¼º
+        /*
+         *
+         * User's session refresh
+         *
+         * */
         if(session.isNew()){
             session.invalidate();
             session.setAttribute("userId", userId);
             session.setMaxInactiveInterval(60 * 60);
         }
 
-        // TODO: ÀÀ´ä Å¸ÀÔ »ý°¢ÇØ º¼ °Í
         return ResponseEntity.ok(true);
     }
 }

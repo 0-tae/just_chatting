@@ -10,4 +10,5 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 public interface UserRepository extends JpaRepository<User,AtomicLong> {
     Optional<User> findUserByUserIdAndPassword(String userId, String encodedPassword);
+    Optional<User> findUserByUserId(String userId);
 }
